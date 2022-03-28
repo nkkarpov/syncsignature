@@ -88,7 +88,7 @@ public:
             sets_collection,
         std::vector<std::pair<int, int>>& candidates,
         std::vector<join::JoinResultElement>& join_result,
-        double distance_threshold, int number_of_threads = 0);
+        double distance_threshold, int number_of_threads = 0, int stop = 0);
 
     /// Converts a given collection of trees into a collection of label sets.
     /**

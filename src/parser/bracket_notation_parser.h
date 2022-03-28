@@ -79,7 +79,7 @@ public:
     /// \param trees_collection Container to store all trees.
     /// \param file_path The path to the file with set of trees.
     void parse_collection(std::vector<node::Node<Label>>& trees_collection,
-                          const std::string& file_path, int min_size = 0, int flush = 1);
+                          const std::string& file_path, int min_size, int flush);
 
     /// Generates the tokens for the input string.
     ///

@@ -99,7 +99,7 @@ void preorder(node::Node<Label>& x, int& index) {
 
 void BracketNotationParser::parse_collection(
     std::vector<node::Node<BracketNotationParser::Label>>& trees_collection,
-    const std::string& file_path, int min_size, int flush) {
+    const std::string& file_path, int min_size, int max_size) {
     std::ifstream trees_file(file_path);
     if (!trees_file) {
         throw std::runtime_error(
@@ -112,8 +112,11 @@ void BracketNotationParser::parse_collection(
         trees_collection.push_back(
             parse_single(tree_string)); // -> This invokes a move constructor
                                         // (due to push_back(<rvalue>)).
-        if (trees_collection.back().get_tree_size() < min_size) {
+        int size = trees_collection.back().get_tree_size();
+        if (size < min_size) {
             trees_collection.pop_back();
+        } else if (size >= max_size) {
+            break;
         }
     }
     trees_file.close();

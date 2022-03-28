@@ -1,3 +1,7 @@
+//
+// Created by nkarpov on 6/12/21.
+//
+
 #pragma once
 #include "binary_tree_converter.h"
 
@@ -60,7 +64,9 @@ void TBallJoinTI<Label, VerificationAlgorithm>::execute_parallel_join(
     auto partition_time = get_time(a, b);
     auto join_time = 0.0;
     fprintf(stderr, "partition in %lf\n", get_time(a, b));
+
     std::vector<int> sizes(tours_collection.size());
+    fprintf(stderr, "sz %d %d\n", (int)preorder.size(), (int)sizes.size());
     for (auto i = 0; i < (int)sizes.size(); ++i) {
         sizes[i] = (int)preorder[i].size();
     }
@@ -68,10 +74,13 @@ void TBallJoinTI<Label, VerificationAlgorithm>::execute_parallel_join(
     std::vector<std::pair<int, int>> segments;
     std::vector<int> start;
     int K = (int)distance_threshold;
-    int shift = int(ceil(K / fraction));
-    for (int current = 0; current < sizes.back(); current += shift) {
+    int _shift = int(ceil(K / fraction));
+    int val = std::max(10 * K, 70);
+    //    _shift = 10000;
+    for (int current = 0; !sizes.empty() && current < sizes.back(); current += _shift) {
         auto lower_key = current;
-        auto upper_key = current + shift + K;
+        auto upper_key = current + _shift + K;
+
         auto lower = std::lower_bound(begin(sizes), end(sizes), lower_key) -
                      begin(sizes);
         auto upper = std::upper_bound(begin(sizes), end(sizes), upper_key) -
@@ -80,6 +89,7 @@ void TBallJoinTI<Label, VerificationAlgorithm>::execute_parallel_join(
         start.push_back(lower_key);
     }
     for (int id = 0; id < (int)segments.size(); id++) {
+        fprintf(stderr, "id = %d\n", id);
         if (segments[id].first + 1 >= segments[id].second)
             continue;
 
@@ -111,94 +121,104 @@ void TBallJoinTI<Label, VerificationAlgorithm>::execute_parallel_join(
         auto f2 = current_time();
         partition_time += get_time(f1, f2);
         fprintf(stderr, "signature done in %lf s\n", get_time(f1, f2));
-        unsigned long sz = 0;
-        for (auto index = segments[id].first; index < segments[id].second;
-             ++index) {
-            sz += signatures_collection[index].size();
-        }
-        fprintf(stderr, "sz = %lu\n", sz);
-        std::vector<std::pair<size_t, std::pair<int, int>>> d;
-        d.reserve(sz);
-        for (auto index = segments[id].first; index < segments[id].second;
-             ++index) {
-            auto& signature = signatures_collection[index];
-            for (auto& part : signature) {
-                d.push_back(
-                    std::make_pair(part.hash, std::make_pair(part.pos, index)));
+         {
+            unsigned long sz = 0;
+            for (auto index = segments[id].first; index < segments[id].second;
+                 ++index) {
+                sz += signatures_collection[index].size();
             }
-        }
-        sort(begin(d), end(d));
-        std::vector<std::pair<size_t, size_t>> intervals;
-        for (size_t i = 0; i < d.size();) {
-            size_t j = i;
-            while (j < d.size() && d[i].first == d[j].first)
-                j++;
-            if (j - i > 1) {
-                intervals.push_back(std::make_pair(i, j));
-            }
-            i = j;
-        }
-        std::vector<std::future<std::vector<std::pair<int, int>>>> tasks(
-            number_of_threads);
-        auto f = [&](int shift) {
-            std::vector<std::pair<int, int>> output;
-            for (size_t index = shift; index < intervals.size();
-                 index += number_of_threads) {
-                for (size_t i = intervals[index].first;
-                     i < intervals[index].second; ++i) {
-                    std::set<int> v;
-                    for (size_t j = i + 1; j < intervals[index].second; ++j) {
-                        auto& o1 = d[i];
-                        auto& o2 = d[j];
-                        if (o2.second.second == o1.second.second)
-                            continue;
-                        if (abs(o2.second.first - o1.second.first) >
-                            distance_threshold) {
-                            break;
-                        }
-                        if (abs((int)tours_collection[o2.second.second].size() -
-                                (int)tours_collection[o1.second.second]
-                                    .size()) > 2 * distance_threshold) {
-                            continue;
-                        }
-                        int ind1 = o1.second.second;
-                        int ind2 = o2.second.second;
-                        if (v.find(ind2) != v.end())
-                            continue;
-                        v.insert(ind2);
-                        if (ind1 > ind2)
-                            std::swap(ind1, ind2);
-                        output.push_back(std::make_pair(ind1, ind2));
-                    }
+            fprintf(stderr, "sz = %lu\n", sz);
+            std::vector<std::pair<size_t, std::pair<int, int>>> d;
+            d.reserve(sz);
+            for (auto index = segments[id].first; index < segments[id].second;
+                 ++index) {
+                auto& signature = signatures_collection[index];
+                for (auto& part : signature) {
+                    d.push_back(std::make_pair(
+                        part.hash, std::make_pair(part.pos, index)));
                 }
             }
-            return output;
-        };
-        for (int i = 0; i < number_of_threads; ++i) {
-            tasks[i] = std::async(std::launch::async, f, i);
-        }
-
-
-        std::vector<std::pair<int, int>> output;
-        for (int i = 0; i < number_of_threads; ++i) {
-            auto tmp = tasks[i].get();
-            for (auto& x : tmp) {
-                output.push_back(x);
+            sort(begin(d), end(d));
+            std::vector<std::pair<size_t, size_t>> intervals;
+            for (size_t i = 0; i < d.size();) {
+                size_t j = i;
+                while (j < d.size() && d[i].first == d[j].first)
+                    j++;
+                if (j - i > 1) {
+                    intervals.push_back(std::make_pair(i, j));
+                }
+                i = j;
             }
-        }
-        sort(begin(output), end(output));
-        for (size_t i = 0; i < output.size();) {
-            auto j = i;
-            while (j < output.size() && output[i] == output[j])
-                j++;
-            if (j - i >= tau) {
-                candidates.push_back(output[i]);
+            std::vector<std::future<std::vector<std::pair<int, int>>>> tasks(
+                number_of_threads);
+            auto f = [&](int shift) {
+                std::vector<std::pair<int, int>> output;
+                for (size_t index = shift; index < intervals.size();
+                     index += number_of_threads) {
+                    auto len = intervals[index].second - intervals[index].first;
+                    if (len * 10 > segments[id].second - segments[id].first && len > 100) {
+                        //                            fprintf(stderr, "skip len = %d\n", len);
+                        continue;
+                    }
+                    for (size_t i = intervals[index].first;
+                         i < intervals[index].second; ++i) {
+                        std::set<int> v;
+
+                        for (size_t j = i + 1; j < intervals[index].second;
+                             ++j) {
+                            auto& o1 = d[i];
+                            auto& o2 = d[j];
+                            if (o2.second.second == o1.second.second)
+                                continue;
+                            if (abs(o2.second.first - o1.second.first) >
+                                distance_threshold) {
+                                break;
+                            }
+                            if (abs((int)tours_collection[o2.second.second]
+                                        .size() -
+                                    (int)tours_collection[o1.second.second]
+                                        .size()) > 2 * distance_threshold) {
+                                continue;
+                            }
+                            int ind1 = o1.second.second;
+                            int ind2 = o2.second.second;
+                            if (v.find(ind2) != v.end())
+                                continue;
+                            v.insert(ind2);
+                            if (ind1 > ind2)
+                                std::swap(ind1, ind2);
+                            output.push_back(std::make_pair(ind1, ind2));
+                        }
+                    }
+                }
+                return output;
+            };
+            for (int i = 0; i < number_of_threads; ++i) {
+                tasks[i] = std::async(std::launch::async, f, i);
             }
-            i = j;
+
+            std::vector<std::pair<int, int>> output;
+            for (int i = 0; i < number_of_threads; ++i) {
+                auto tmp = tasks[i].get();
+                for (auto& x : tmp) {
+                    output.push_back(x);
+                }
+            }
+            sort(begin(output), end(output));
+            for (size_t i = 0; i < output.size();) {
+                auto j = i;
+                while (j < output.size() && output[i] == output[j])
+                    j++;
+                if (j - i >= tau) {
+                    candidates.push_back(output[i]);
+                }
+                i = j;
+            }
         }
         auto f3 = current_time();
         fprintf(stderr, "process buckets done in %lf s\n", get_time(f2, f3));
         join_time += get_time(f2, f3);
+
     }
     sort(begin(candidates), end(candidates));
     candidates.resize(unique(begin(candidates), end(candidates)) -
@@ -222,6 +242,11 @@ void TBallJoinTI<Label, VerificationAlgorithm>::execute_parallel_join(
 
             for (size_t i = shift; i < candidates.size();
                  i += number_of_threads) {
+                if (preorder[candidates[i].first].size() + preorder[candidates[i].second].size() <= distance_threshold) {
+                    output.push_back(
+                        std::make_pair(candidates[i].first, candidates[i].second));
+                    continue;
+                }
                 if (edit(preorder[candidates[i].first],
                          preorder[candidates[i].second],
                          distance_threshold) > distance_threshold) {
@@ -281,153 +306,6 @@ void TBallJoinTI<Label, VerificationAlgorithm>::execute_parallel_join(
     fflush(stdout);
 }
 
-/*
-template <typename Label, typename VerificationAlgorithm>
-void TBallJoinTI<Label, VerificationAlgorithm>::execute_join(
-    std::vector<node::Node<Label>>& trees_collection,
-    std::vector<node::BinaryNode<Label>>& binary_trees_collection,
-    std::vector<std::pair<int, int>>& candidates,
-    std::vector<join::JoinResultElement>& join_result, double fraction,
-    const double tau, const double distance_threshold, int p) {
-    fprintf(stderr, "BJoin p = %d\n", p);
-    for (size_t i = 0; i < trees_collection.size(); ++i) {
-        binary_trees_collection.push_back(
-            std::move(node::BinaryNode(trees_collection[i].label())));
-    }
-    auto a = current_time();
-    convert_trees_to_binary_trees(trees_collection, binary_trees_collection);
-    std::vector<std::vector<std::pair<size_t, int>>> tours_collection;
-    std::vector<std::vector<size_t>> preorder;
-    convert_trees_to_tours(trees_collection, tours_collection, preorder, p);
-
-    std::vector<int> sizes(tours_collection.size());
-    for (auto i = 0; i < (int)sizes.size(); ++i) {
-        sizes[i] = (int)preorder[i].size();
-    }
-    std::vector<std::pair<int, int>> segments;
-    int K = (int)distance_threshold;
-    int shift = int(ceil(K / fraction));
-    for (int current = 0; current < sizes.back(); current += shift) {
-        auto lower_key = current;
-        auto upper_key = current + shift + K;
-        auto lower = std::lower_bound(begin(sizes), end(sizes), lower_key) -
-                     begin(sizes);
-        auto upper = std::upper_bound(begin(sizes), end(sizes), upper_key) -
-                     begin(sizes);
-        segments.emplace_back(lower, upper);
-    }
-
-    using candidate_t = std::pair<int, int>;
-    struct frequency_t {
-        candidate_t c;
-        double f;
-    };
-    std::vector<signature_t> signatures_collection;
-    signatures_collection.resize(tours_collection.size());
-    for (int id = 1; id < (int)segments.size(); id++) {
-        int current = id * shift;
-        auto z = (int)ceil(fraction * current / distance_threshold);
-        fprintf(stderr, "id = %d, cur = %d, z = %d, [%d, %d)\n", id, current, z,
-                segments[id].first, segments[id].second);
-        partition_binary_tree(binary_trees_collection, tours_collection,
-                              signatures_collection, segments[id].first,
-                              segments[id].second, z, tau, p);
-        fprintf(stderr, "partition done\n");
-        std::unordered_map<size_t, std::vector<std::pair<int, part_t>>> table;
-        std::vector<frequency_t> result;
-        for (auto index = segments[id].first; index < segments[id].second;
-             ++index) {
-            std::vector<std::pair<int, int>> output;
-            const auto& signature = signatures_collection[index];
-            for (auto& part : signature) {
-                std::vector<std::pair<int, int>> tmp;
-                auto it = table.find(part.hash);
-                if (it != table.end()) {
-                    auto& vec = it->second;
-                    for (auto i = 0; i < (int)vec.size(); ++i) {
-                        while (i < (int)vec.size() &&
-                               tours_collection[vec[i].first].size() +
-                                       2 * distance_threshold <
-                                   tours_collection[index].size()) {
-                            swap(vec[i], vec.back());
-                            vec.pop_back();
-                        }
-                        if (i >= (int)vec.size()) {
-                            break;
-                        }
-                        auto diff = 0.0;
-                        diff += abs(vec[i].second.pos - part.pos);
-                        if (diff >= distance_threshold + 1) {
-                            continue;
-                        }
-                        auto candidate = std::pair(vec[i].first, index);
-                        if (candidate.first > candidate.second) {
-                            std::swap(candidate.first, candidate.second);
-                        }
-                        tmp.push_back(candidate);
-                    }
-                }
-                sort(tmp.begin(), tmp.end());
-                tmp.resize(unique(tmp.begin(), tmp.end()) - tmp.begin());
-                for (auto& item : tmp) {
-                    output.push_back(item);
-                }
-            }
-            for (auto& part : signature) {
-                table[part.hash].emplace_back(index, part);
-            }
-            sort(output.begin(), output.end());
-            for (size_t i = 0; i < output.size();) {
-                auto j = i;
-                while (j < output.size() && output[i] == output[j])
-                    j++;
-                if (j - i >= tau) {
-                    result.push_back(frequency_t{ output[i], (double)(j - i) });
-                }
-                i = j;
-            }
-        }
-        for (const auto& item : result) {
-            candidates.push_back(item.c);
-        }
-        fprintf(stderr, "done with id %d (%d)\n", id, (int)candidates.size());
-    }
-    sort(begin(candidates), end(candidates));
-    candidates.resize(unique(begin(candidates), end(candidates)) -
-                      begin(candidates));
-    auto c = current_time();
-    */
-/*for (auto i = 0u; i < candidates.size(); ++i) {
-        assert(candidates[i].first < candidates[i].second);
-    }
-    for (auto i = 0u; i + 1u < candidates.size(); ++i) {
-        assert(candidates[i] != candidates[i + 1]);
-    }*//*
-
-
-    lowerbound(preorder, candidates, distance_threshold);
-    upperbound(trees_collection, candidates, join_result, distance_threshold);
-    verify_candidates(trees_collection, candidates, join_result,
-                      distance_threshold);
-    auto e = current_time();
-    // name, tau, T / K, K, W, join time, number of candidates, filtering time,
-    // number of verifications, verification time, output, total verification
-    // time, total time
-    //    double ave = 0.0;
-    */
-/*for (auto& tour : tours_collection)
-        ave += tour.size() / 2.0 / tours_collection.size();*//*
-
-    int output = (int)join_result.size();
-    double join_time = get_time(a, c);
-    double verification_time = get_time(c, e);
-    double total_time = join_time + verification_time;
-    printf("%s,%lf,%lf,%d,%lf,%lf,%lf,%d,%d\n", "BJoin", tau, fraction,
-           (int)distance_threshold, join_time, verification_time, total_time,
-           output, 0);
-    fflush(stdout);
-}
-*/
 template <typename Label, typename VerificationAlgorithm>
 void TBallJoinTI<Label, VerificationAlgorithm>::lowerbound(
     const std::vector<std::vector<size_t>>& preorder,
@@ -503,7 +381,7 @@ void TBallJoinTI<Label, VerificationAlgorithm>::partition_binary_tree(
     int tt;
     std::function<void(node::BinaryNode<Label>*)> dfs;
     dfs = [&](node::BinaryNode<Label>* node) {
-        //        assert(node != nullptr);
+        assert(node != nullptr);
         int id = node->get_id();
         /*if (tt == 34250) {
             fprintf(stderr, "id = %d\n", id);
@@ -571,7 +449,8 @@ void TBallJoinTI<Label, VerificationAlgorithm>::partition_binary_tree(
         part.pos = value;
         return 1;
     };
-
+    assert(last <= signature_collection.size());
+//    assert(last <= tours_collection.size() / 2);
     for (int i = first + shift; i < last; i += step) {
         tt = i;
         signature_collection[i].clear();

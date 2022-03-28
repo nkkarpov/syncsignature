@@ -40,21 +40,23 @@ void TJoinTI<Label, VerificationAlgorithm>::execute_parallel_join(
         sets_collection,
     std::vector<std::pair<int, int>>& candidates,
     std::vector<join::JoinResultElement>& join_result,
-    double distance_threshold, int number_of_threads) {
+    double distance_threshold, int number_of_threads, int stop) {
     fprintf(stderr, "start TJoin\n");
     auto z = current_time();
     convert_trees_to_sets(trees_collection, sets_collection);
     retrieve_candidates(sets_collection, candidates, distance_threshold);
     fprintf(stderr, "number of threads = %d\n", number_of_threads);
+    auto stamp = current_time();
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::shuffle(begin(candidates), end(candidates),
                  std::default_random_engine(seed));
-    if (number_of_threads == 0) {
-        upperbound(trees_collection, candidates, join_result,
-                   distance_threshold);
-        verify_candidates(trees_collection, candidates, join_result,
-                          distance_threshold);
-    } else {
+    assert(number_of_threads >= 1);
+    if (stop){
+        return;
+    }
+    {
+        fprintf(stderr, "number of candidates %d\n", (int)candidates.size());
+        fprintf(stderr, "join time = %lfs\n", get_time(z, stamp));
         auto f = [&](int shift) {
             auto ld = label::LabelDictionary<Label>();
             typename VerificationAlgorithm::AlgsCostModel cm(ld);
@@ -67,7 +69,6 @@ void TJoinTI<Label, VerificationAlgorithm>::execute_parallel_join(
             std::vector<std::pair<int, int>> output;
             for (size_t i = shift; i < candidates.size();
                  i += number_of_threads) {
-                fprintf(stderr, "go %d\n", (int)i);
                 ld.clear();
                 node::TreeIndexLGM ti_1;
                 node::TreeIndexLGM ti_2;

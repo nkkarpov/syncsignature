@@ -1,7 +1,13 @@
+//
+// Created by nkarpov on 3/10/21.
+//
+
 #pragma once
 #include <cassert>
 #include <future>
 #include <thread>
+#include <tang_join_ti.h>
+#include "touzet_baseline_tree_index.h"
 #include <set>
 #include <random>
 
@@ -20,7 +26,7 @@ public:
                           std::vector<std::pair<int, int>>& candidates,
                           std::vector<join::JoinResultElement>& join_result,
                           double fraction, double tau,
-                          double distance_threshold, int p, int number_of_threads);
+                          double distance_threshold, int p, int number_of_threads, int W);
 
     void verify_candidates(std::vector<node::Node<Label>>& trees_collection,
                            std::vector<std::pair<int, int>>& candidates,
