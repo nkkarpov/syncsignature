@@ -62,7 +62,6 @@ int main(int argc, char** argv) {
         }
         ave /= sizes.size();
         printf("ave = %lf\n", ave);
-
     }
     fprintf(stderr, "id = %d\n", id);
     srand(time(nullptr));
@@ -134,11 +133,12 @@ int main(int argc, char** argv) {
         }
     } else if (id == 3) {
 
-//        auto s =
-//            std::lower_bound(sizes.begin(), sizes.end(), 0) - sizes.begin();
-//        auto t = std::upper_bound(sizes.begin(), sizes.end(),
-//                                  1000 + distance_threshold) -
-//                 sizes.begin();
+        //        auto s =
+        //            std::lower_bound(sizes.begin(), sizes.end(), 0) -
+        //            sizes.begin();
+        //        auto t = std::upper_bound(sizes.begin(), sizes.end(),
+        //                                  1000 + distance_threshold) -
+        //                 sizes.begin();
         fprintf(stderr, "s = %d\n", (int)0);
         {
             join::TMinJoinTI<Label, ted::TouzetBaselineTreeIndex<CostModel>>
@@ -165,10 +165,10 @@ int main(int argc, char** argv) {
                 algpart;
             for (int iter = 0; iter < R; iter++) {
                 printf("%d,%d,", down, (int)1e5);
-                algpart.execute_parallel_join(trees_collection, binary_trees_collection,
-                                              candidates, join_result, fraction,
-                                              sim, distance_threshold, rand(),
-                                              number_of_threads);
+                algpart.execute_parallel_join(
+                    trees_collection, binary_trees_collection, candidates,
+                    join_result, fraction, sim, distance_threshold, rand(),
+                    number_of_threads);
 
                 binary_trees_collection.clear();
                 candidates.clear();
@@ -294,14 +294,16 @@ int main(int argc, char** argv) {
             std::vector<std::pair<int, int>> alg_candidates;
             std::vector<join::JoinResultElement> alg_join_result;
             for (auto iter = 0; iter < 1; ++iter) {
-//                printf("%d,%d,", down, (int)1e5);
+                //                printf("%d,%d,", down, (int)1e5);
                 alg.execute_parallel_join(trees_collection, alg_candidates,
                                           alg_join_result, fraction, sim,
                                           (double)distance_threshold, rand(),
                                           number_of_threads, W);
-                printf("%lu %lu\n", trees_collection.size(), alg_join_result.size());
+                printf("%lu %lu\n", trees_collection.size(),
+                       alg_join_result.size());
                 for (int i = 0; i < alg_join_result.size(); i++) {
-                    printf("%d %d\n", alg_join_result[i].tree_id_1, alg_join_result[i].tree_id_2);
+                    printf("%d %d\n", alg_join_result[i].tree_id_1,
+                           alg_join_result[i].tree_id_2);
                 }
                 alg_candidates.clear();
                 alg_join_result.clear();
@@ -315,15 +317,17 @@ int main(int argc, char** argv) {
             join::TBallJoinTI<Label, ted::TouzetBaselineTreeIndex<CostModel>>
                 algpart;
             for (int iter = 0; iter < 1; iter++) {
-//                printf("%d,%d,", down, (int)1e5);
-                algpart.execute_parallel_join(trees_collection, binary_trees_collection,
-                                              candidates, join_result, fraction,
-                                              sim, distance_threshold, rand(),
-                                              number_of_threads);
+                //                printf("%d,%d,", down, (int)1e5);
+                algpart.execute_parallel_join(
+                    trees_collection, binary_trees_collection, candidates,
+                    join_result, fraction, sim, distance_threshold, rand(),
+                    number_of_threads);
 
-                printf("%lu %lu\n", trees_collection.size(), join_result.size());
+                printf("%lu %lu\n", trees_collection.size(),
+                       join_result.size());
                 for (int i = 0; i < join_result.size(); i++) {
-                    printf("%d %d\n", join_result[i].tree_id_1, join_result[i].tree_id_2);
+                    printf("%d %d\n", join_result[i].tree_id_1,
+                           join_result[i].tree_id_2);
                 }
                 binary_trees_collection.clear();
                 candidates.clear();
@@ -340,17 +344,84 @@ int main(int argc, char** argv) {
         join::TJoinTI<Label, ted::TouzetBaselineTreeIndex<CostModel>>
             ted_join_algorithm;
         for (int iter = 0; iter < R; iter++) {
-//            printf("%d,%d,", down, (int)1e5);
+            //            printf("%d,%d,", down, (int)1e5);
             ted_join_algorithm.execute_parallel_join(
                 trees_collection, sets_collection, candidates, join_result,
                 (double)distance_threshold, number_of_threads);
             printf("%lu %lu\n", trees_collection.size(), join_result.size());
             for (int i = 0; i < join_result.size(); i++) {
-                printf("%d %d\n", join_result[i].tree_id_1, join_result[i].tree_id_2);
+                printf("%d %d\n", join_result[i].tree_id_1,
+                       join_result[i].tree_id_2);
             }
             sets_collection.clear();
             candidates.clear();
             join_result.clear();
+        }
+    } else if (id == 13) {
+        for (int iter = 0; iter < R; iter++) {
+            join::TMinJoinTI<Label, ted::TouzetBaselineTreeIndex<CostModel>>
+                alg;
+            std::vector<std::pair<int, int>> alg_candidates;
+            std::vector<join::JoinResultElement> alg_join_result;
+            std::vector<std::pair<int, int>> tt;
+            std::vector<int> result;
+            for (auto q = 0; q < 10; ++q) {
+                printf("%d,%d,", down, (int)1e5);
+                alg.execute_parallel_join(trees_collection, alg_candidates,
+                                          alg_join_result, fraction, sim,
+                                          (double)distance_threshold, rand(),
+                                          number_of_threads, W);
+                alg_candidates.clear();
+                for (auto x : alg_join_result) {
+                    auto a = std::min(x.tree_id_1, x.tree_id_2);
+                    auto b = std::max(x.tree_id_1, x.tree_id_2);
+                    tt.emplace_back(a, b);
+                }
+                std::sort(tt.begin(), tt.end());
+                tt.resize(std::unique(tt.begin(), tt.end()) - tt.begin());
+                result.push_back((int)tt.size());
+                alg_join_result.clear();
+            }
+            printf("EJoin,%d", distance_threshold);
+            for (int i = 0; i < (int)result.size(); i++) {
+                printf(",%d", result[i]);
+            }
+            printf("\n");
+        }
+        for (int iter = 0; iter < R; iter++) {
+            std::vector<std::pair<int, int>> candidates;
+            std::vector<join::JoinResultElement> join_result;
+            std::vector<node::BinaryNode<Label>> binary_trees_collection;
+            join::TBallJoinTI<Label, ted::TouzetBaselineTreeIndex<CostModel>>
+                algpart;
+
+            std::vector<std::pair<int, int>> tt;
+            std::vector<int> result;
+            for (auto q = 0; q < 10; ++q) {
+                printf("%d,%d,", down, (int)1e5);
+                algpart.execute_parallel_join(
+                    trees_collection, binary_trees_collection, candidates,
+                    join_result, fraction, sim, distance_threshold, rand(),
+                    number_of_threads);
+
+                binary_trees_collection.clear();
+                candidates.clear();
+
+                for (auto x : join_result) {
+                    auto a = std::min(x.tree_id_1, x.tree_id_2);
+                    auto b = std::max(x.tree_id_1, x.tree_id_2);
+                    tt.emplace_back(a, b);
+                }
+                std::sort(tt.begin(), tt.end());
+                tt.resize(std::unique(tt.begin(), tt.end()) - tt.begin());
+                result.push_back((int)tt.size());
+                join_result.clear();
+            }
+            printf("BJoin,%d", distance_threshold);
+            for (int i = 0; i < (int)result.size(); i++) {
+                printf(",%d", result[i]);
+            }
+            printf("\n");
         }
     }
 
