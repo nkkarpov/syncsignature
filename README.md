@@ -19,7 +19,7 @@ The ted program has the following interface
 
 ``K`` - distance threshold.
 
-``C`` - neighbourhood resolution (equal to ``0.3`` for most of experiments).
+``C`` - neighbourhood resolution (equal to ``0.3`` for most experiments).
 
 ``R`` - number of repetitions.
 
@@ -29,7 +29,7 @@ The ted program has the following interface
 
 ``NUMBER_OF_THREADS`` - number of threads for multi-thread version
 
-``CUT`` - lower bound on the size of tree (1000 for most of experiments)
+``CUT`` - lower bound on the size of tree (1000 for most experiments)
 
 Example of usage (after unziping datasets):
 ```./ted ../datasets/python_sorted.bracket 0 10 0.3 11 2 239 1 1000```
