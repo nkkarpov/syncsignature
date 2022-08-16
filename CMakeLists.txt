@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 3.7)
 
 project(tree_similarity)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a -Wall -Wextra -Wpedantic -O2 -lpthread")
+if(APPLE)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O2 -lpthread")
+endif()
+if(UNIX AND NOT APPLE)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O2 -pthread")
+endif()
 
 add_library(TreeSimilarity INTERFACE)
 target_include_directories(TreeSimilarity INTERFACE
