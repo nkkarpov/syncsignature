@@ -1,4 +1,4 @@
-The code of SyncSygnature algorithm. 
+The code of SyncSignature algorithm. 
 
 To build the project, execute the following from the root directory.
 ```bash
