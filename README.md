@@ -33,3 +33,5 @@ The ted program has the following interface
 
 Example of usage (after unziping datasets):
 ```./ted ../datasets/python_sorted.bracket 0 10 0.3 11 2 239 1 1000```
+
+Datasets : https://indiana-my.sharepoint.com/:f:/g/personal/nkarpov_iu_edu/Ek7a2RkL6CNBnPvVn16SsYYB12IHnvjMzPlQU4FJlYZuhQ?e=t3YH7a
