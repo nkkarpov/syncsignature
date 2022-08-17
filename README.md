@@ -23,7 +23,7 @@ The ted program has the following interface
 ~~~
 
 
-``ID`` - id of algorithm. It can be set to 0 (``EJoin``), 1 (``BJoin``), or 2 (``TJoin``).
+``ID`` - id of the algorithm. It can be set to 0 (``EJoin``), 1 (``BJoin``), or 2 (``TJoin``).
 
 ``K`` - distance threshold.
 
