@@ -1,3 +1,7 @@
+# idea
+.idea
+#build
+build
 # Prerequisites
 *.d
 
