@@ -15,11 +15,13 @@ The ted program has the following interface
 
 ``FILE`` - path to input file. File should contain n lines, each line represents a tree in format ``{rootLabel{child1subtree}{child2subree}...{childksubtree}}``. For example, the string ``{a{b{c}{d}{e}}{f{g}}}`` corresponds to tree 
 
-&nbsp;&nbsp;&nbsp;a
-&nbsp;&nbsp;/&nbsp;&nbsp;\
-&nbsp;&nbsp;b&nbsp;&nbsp;&nbsp;f
-&nbsp;/|\&nbsp;&nbsp;&nbsp;\
-&nbsp;c&nbsp;d&nbsp;e&nbsp;&nbsp;&nbsp;g
+``
+    a
+   / \
+  b   f
+ /|\   \
+c d e   g
+``
 
 
 ``ID`` - id of algorithm, it can be set to 0 (``EJoin``), 1 (``BJoin``), or 2 (``TJoin``).
