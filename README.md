@@ -17,9 +17,13 @@ The ted program has the following interface
 
 ``
     a
+
    / \
+
   b   f
+
  /|\   \
+
 c d e   g
 ``
 
