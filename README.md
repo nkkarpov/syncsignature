@@ -61,7 +61,7 @@ All code in this repository is currently under the [MIT licence](https://opensou
 
 We use 6 datasets for experiments in the main paper.
 
-- **Swiss** : protein sequence data ([raw data](ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.xml.gz))
+- **Swiss** : protein sequence data ([raw data](https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.xml.gz))
 - **Python** : abstract syntax trees of Python files ([raw data](http://files.srl.inf.ethz.ch/data/py150.tar.gz))
 - **JScript** : abstract syntax trees of JavaScript files ([raw data](https://files.sri.inf.ethz.ch/data/js_dataset.tar.gz))
 
