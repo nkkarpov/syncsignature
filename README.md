@@ -1,4 +1,4 @@
-The code of SyncSignature algorithm. 
+The code for the SyncSignature algorithm. 
 
 To build the project, execute the following from the root directory.
 ```bash
@@ -7,21 +7,19 @@ cd build
 cmake ..
 make ted
 ```
-In the ``build`` directory you find the binary ``ted`` that executes the algorithms from command line.
+In the ``build`` directory you can find the binary file ``ted`` that executes the algorithms from command line.
 
 The ted program has the following interface
 
 ```./ted <FILE> <ID> <K> <C> <R> <SIM> <SEED> <NUMBER_OF_THREADS> <CUT>```
 
-``FILE`` - path to input file. File should contain n lines. Each line represents a tree in format ``{rootLabel{child1subtree}{child2subtree}...{childksubtree}}``. For example, the string ``{a{b{c}{d}{e}}{f{g}}}`` corresponds to tree 
+``FILE`` - path to input file. File should contain n lines. Each line represents a tree in the format of ``{rootLabel{child1subtree}{child2subtree}...{childksubtree}}``. For example, the string ``{a{b{c}{d}{e}}{f{g}}}`` corresponds to tree 
 
-``
-    a
-   / \
-  b   f
- /|\   \
-c d e   g
-``
+        a 
+				       / \ 
+							       b   f   
+										      /|\   \    
+													    c d e   g 
 
 
 ``ID`` - id of algorithm. It can be set to 0 (``EJoin``), 1 (``BJoin``), or 2 (``TJoin``).
@@ -36,7 +34,7 @@ c d e   g
 
 ``SEED`` - seed of randomness.
 
-``NUMBER_OF_THREADS`` - number of threads for multi-thread version.
+``NUMBER_OF_THREADS`` - number of threads for the multi-thread version.
 
 ``CUT`` - minimum size of a tree (we set it to be ``1000`` by default).
 
