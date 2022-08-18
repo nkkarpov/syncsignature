@@ -17,7 +17,7 @@ In the ``build`` directory you can find the binary file ``ted`` that executes th
 
 ### Run Instructions
 
-The ted program has the following interface
+The ``ted`` program has the following interface
 
 ```./ted <FILE> <ID> <K> <C> <R> <SIM> <SEED> <NUMBER_OF_THREADS> <CUT>```
 
@@ -59,17 +59,14 @@ All code in this repository is currently under the [MIT licence](https://opensou
 
 ### Datasets
 
-We use 6 datasets for experiments in the main paper.
+We tested ``EJoin``, ``BJoin`` and ``TJoin`` on the following datasets
 
-- **Swiss** : protein sequence data ([raw data](https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.xml.gz))
-- **Python** : abstract syntax trees of Python files ([raw data](http://files.srl.inf.ethz.ch/data/py150.tar.gz))
-- **JScript** : abstract syntax trees of JavaScript files ([raw data](https://files.sri.inf.ethz.ch/data/js_dataset.tar.gz))
-
-The following three datasets obtained from the previous after filtering out trees of size less than 1 ,000.
-
-- **Swiss1K**
-- **Python1K**
-- **JScript1K**
+- **Swiss** : protein sequence data (available at (https://www.uniprot.org/downloads))
+- **Python** : abstract syntax trees of Python files (available at (http://files.srl.inf.ethz.ch/data/py150.tar.gz))
+- **JScript** : abstract syntax trees of JavaScript files (available at (https://files.sri.inf.ethz.ch/data/js_dataset.tar.gz))
+- **Swiss1K** : obtained from Swiss by removing all trees of size smaller than 1000
+- **Python1K** : obtained from Python by removing all trees of size smaller than 1000. 
+- **JScript1K** : obtained from JScript by removing all trees of size smaller than 1000. 
 
 #### Statistics on Datasets
 
@@ -82,6 +79,7 @@ The following three datasets obtained from the previous after filtering out tree
 | Python1K  | 35,754  | 1,000     | 46,481    | 3,016     |
 | JScript1K | 39,110  | 1,000     | 1,716,813 | 9,006     |
 
-#### Link to Datasets
+#### Download All Datasets
 
+The datasets used in our experiments can also be downloaded via the following link
 https://indiana-my.sharepoint.com/:f:/g/personal/nkarpov_iu_edu/Ek7a2RkL6CNBnPvVn16SsYYB12IHnvjMzPlQU4FJlYZuhQ?e=t3YH7a
