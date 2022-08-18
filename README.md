@@ -61,9 +61,9 @@ All code in this repository is currently under the [MIT licence](https://opensou
 
 We tested ``EJoin``, ``BJoin`` and ``TJoin`` on the following datasets
 
-- **Swiss** : protein sequence data (available at (https://www.uniprot.org/downloads))
-- **Python** : abstract syntax trees of Python files (available at (http://files.srl.inf.ethz.ch/data/py150.tar.gz))
-- **JScript** : abstract syntax trees of JavaScript files (available at (https://files.sri.inf.ethz.ch/data/js_dataset.tar.gz))
+- **Swiss** : protein sequence data (available at https://www.uniprot.org/downloads )
+- **Python** : abstract syntax trees of Python files (available at http://files.srl.inf.ethz.ch/data/py150.tar.gz )
+- **JScript** : abstract syntax trees of JavaScript files (available at https://files.sri.inf.ethz.ch/data/js_dataset.tar.gz )
 - **Swiss1K** : obtained from Swiss by removing all trees of size smaller than 1000
 - **Python1K** : obtained from Python by removing all trees of size smaller than 1000. 
 - **JScript1K** : obtained from JScript by removing all trees of size smaller than 1000. 
